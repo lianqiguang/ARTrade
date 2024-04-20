@@ -149,22 +149,39 @@ void BybitMarket::instruments() {
 
     for (nlohmann::json item: message) {
         if (item["status"] != "Trading") { continue; }
-        core::datas::Instruments* instrument = new core::datas::Instruments {
-            .type = core::datas::InstrumentType::Type::Future,
-            .symbol = item["symbol"],
-            .log_size = 1,
-            .price_scale = pow(10, -1 * std::stoi(std::string(item["priceScale"]))),
-            .min_leverage = std::stod(std::string(item["leverageFilter"]["minLeverage"])),
-            .max_leverage = std::stod(std::string(item["leverageFilter"]["maxLeverage"])),
-            .leverage_scale = std::stod(std::string(item["leverageFilter"]["leverageStep"])),
-            .min_quantity = std::stod(std::string(item["lotSizeFilter"]["minOrderQty"])),
-            .max_quantity = std::stod(std::string(item["lotSizeFilter"]["maxOrderQty"])),
-            .quantity_scale = std::stod(std::string(item["lotSizeFilter"]["qtyStep"])),
-            .expire = core::time::Time(2099, 12, 31, 23, 59, 59).to_string()
-        };
-        modules()->add_instrument(instrument);
-    }
+        if (category == "spot") {
+            core::datas::Instruments* instrument = new core::datas::Instruments {
+                .type = core::datas::InstrumentType::Type::SPOT,
+                .symbol = item["symbol"],
+                .log_size = 1,
+                .price_scale = std::stod(std::string(item["lotSizeFilter"]["basePrecision"])),
+                .min_leverage = 1,
+                .max_leverage = 1,
+                .leverage_scale = 1,
+                .min_quantity = std::stod(std::string(item["lotSizeFilter"]["minOrderQty"])),
+                .max_quantity = std::stod(std::string(item["lotSizeFilter"]["maxOrderQty"])),
+                .quantity_scale = std::stod(std::string(item["priceFilter"]["tickSize"])),
+                .expire = core::time::Time(2099, 12, 31, 23, 59, 59).to_string()
+            };
+            modules()->add_instrument(instrument);
+        } else if (category == "linear") {
+            core::datas::Instruments* instrument = new core::datas::Instruments {
+                .type = core::datas::InstrumentType::Type::Future,
+                .symbol = item["symbol"],
+                .log_size = 1,
+                .price_scale = pow(10, -1 * std::stoi(std::string(item["priceScale"]))),
+                .min_leverage = std::stod(std::string(item["leverageFilter"]["minLeverage"])),
+                .max_leverage = std::stod(std::string(item["leverageFilter"]["maxLeverage"])),
+                .leverage_scale = std::stod(std::string(item["leverageFilter"]["leverageStep"])),
+                .min_quantity = std::stod(std::string(item["lotSizeFilter"]["minOrderQty"])),
+                .max_quantity = std::stod(std::string(item["lotSizeFilter"]["maxOrderQty"])),
+                .quantity_scale = std::stod(std::string(item["lotSizeFilter"]["qtyStep"])),
+                .expire = core::time::Time(2099, 12, 31, 23, 59, 59).to_string()
+            };
+            modules()->add_instrument(instrument);
+        }
 
+    }
     return;
 }
 
