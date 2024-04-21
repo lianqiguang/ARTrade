@@ -97,6 +97,7 @@ struct Market_base {
     char symbol[SYMBOL_MAX_LENGTH] = {0};
     char exchange[SYMBOL_MAX_LENGTH] = {0};
     uint64_t time;
+    uint64_t receive_time;
 };
 
 struct alignas(64) Market_bbo : public Market_base {

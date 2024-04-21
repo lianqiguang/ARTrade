@@ -136,6 +136,7 @@ PYBIND11_MODULE(pystrategy, m) {
         .def(py::init<>())
         .def_readwrite("market_type", &Market_base::market_type)
         .def_readwrite("time", &Market_base::time)
+        .def_readwrite("receive_time", &Market_base::receive_time)
         .def_property("symbol",
             [](const Market_base &mb) { return py::str(mb.symbol); },
             [](Market_base &mb, const py::str &s) {

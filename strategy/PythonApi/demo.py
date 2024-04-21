@@ -119,6 +119,10 @@ class MyStrategy(Strategy):
     def on_market_bbo(self, bbo: Market_bbo):
         self.ticker.append(bbo.price)
 
+        receive = bbo.receive_time
+        strategy = time.time_ns()
+        print(f"交易所时间：{bbo.time} 接收时间: {receive} 策略接收时间: {strategy} 系统延迟: {(strategy - receive) / 1_000_100}(ms)")
+
         if (bbo.time > self.init_time):
             self.start = True
 
