@@ -26,7 +26,9 @@ struct Self {
 
     std::string category;
 
-    unsigned long long reqid = 0;
+    std::atomic<unsigned long long> reqid = 0;
+
+    uint64_t time_difference = 0;
 
     ~Self() {
         if (websocket_client) { delete websocket_client; }
@@ -34,7 +36,7 @@ struct Self {
 };
 
 void update_headers(Self *self, const nlohmann::json& parameters, const std::string method) {
-    std::string timestamp = std::to_string(core::time::Time().to_milliseconds());
+    std::string timestamp = std::to_string(core::time::Time().to_milliseconds() - self->time_difference);
 
     std::string sign;
     static const std::string recv_window = "5000";
@@ -106,6 +108,18 @@ void BybitTrade::init() {
     spdlog::info("{} is_test: {} is_spot: {} websocket_url: {} restful_url: {}", LOGHEAD, is_test, is_spot, websocket_url, restful_url);
     // restful
     self.http_client.set_uri(restful_url);
+
+    // caculate time difference
+    uint64_t step1_time = core::time::Time().to_second();
+    self.http_client.set_header({{"Content-Type", "application/json"}});
+    httplib::Result time_result = self.http_client.get("/v5/market/time");
+    // no check
+    // {"retCode":0,"retMsg":"OK","result":{"timeSecond":"1713688912","timeNano":"1713688912966849170"},"retExtInfo":{},"time":1713688912966}
+    nlohmann::json json_time_result = nlohmann::json::parse(time_result->body);
+    uint64_t step2_time = core::time::Time().to_second();
+    uint64_t server_time = std::stoi(std::string(json_time_result["result"]["timeSecond"]));
+    self.time_difference = (((step2_time + step1_time) / 2) - server_time) * 1000;
+
     httplib::Headers headers = {
         {"Content-Type", "application/json"},
         {"X-BAPI-SIGN", ""},
@@ -221,7 +235,7 @@ void BybitTrade::interval_1s() {
 void BybitTrade::on_open() {
     // self.is_ready.store(true);
     nlohmann::json json_obj;
-    json_obj["req_id"] = self.reqid;
+    json_obj["req_id"] = self.reqid.load();
     json_obj["op"] = "auth";
 
     auto exipres = core::time::Time().to_milliseconds() + 1000;
@@ -234,7 +248,7 @@ void BybitTrade::on_open() {
     std::string json_str = json_obj.dump();
     auto code = self.websocket_client->send(json_str);
     if (code == 0) {
-        self.reqid = (self.reqid + 1) % ULLONG_MAX;
+        self.reqid.store((self.reqid.load() + 1) % ULLONG_MAX);
     }
 }
 
