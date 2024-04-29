@@ -11,6 +11,14 @@
 
 namespace core::time {
 
+inline static std::chrono::_V2::system_clock::time_point _time_point() noexcept { return std::chrono::system_clock::now(); }
+inline static std::chrono::_V2::system_clock::duration _duration() noexcept { return _time_point().time_since_epoch(); }
+
+inline  uint64_t local_second() noexcept { return std::chrono::duration_cast<std::chrono::seconds>(_duration()).count(); }
+inline  uint64_t local_milliseconds() noexcept { return std::chrono::duration_cast<std::chrono::milliseconds>(_duration()).count(); }
+inline  uint64_t local_microseconds() noexcept { return std::chrono::duration_cast<std::chrono::microseconds>(_duration()).count(); }
+inline  uint64_t local_nanoseconds() noexcept { return std::chrono::duration_cast<std::chrono::nanoseconds>(_duration()).count(); }
+
 class Time {
 public:
     Time() {

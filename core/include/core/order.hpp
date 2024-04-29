@@ -75,7 +75,7 @@ public:
     inline uint64_t next_client_id() {
         constexpr uint64_t key = UINT64_MAX / 1000;
         client_id_index.store((client_id_index.load() + 1) % 1000);
-        return (((core::time::Time().to_nanoseconds() % key) * 100) + client_id_index.load());
+        return (((core::time::local_nanoseconds() % key) * 100) + client_id_index.load());
     }
 
 private:

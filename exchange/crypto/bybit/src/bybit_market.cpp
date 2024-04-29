@@ -221,7 +221,7 @@ void BybitMarket::on_message(const std::string &msg) {
         // spdlog::info("{} tickers: {}", LOGHEAD, msg);
 
         core::datas::Market_depth obj;
-        obj.receive_time = core::time::Time().to_nanoseconds();
+        obj.receive_time = core::time::local_nanoseconds();
         obj.market_type = core::datas::MarketType::Depth;
         std::strcpy(obj.symbol, symbols.c_str());
         std::strcpy(obj.exchange, "Bybit");
@@ -283,7 +283,7 @@ void BybitMarket::on_message(const std::string &msg) {
     } else if (mode == "tickers") {  //  tickers.{symbol}
         // spdlog::info("{} tickers: {}", LOGHEAD, msg);
         core::datas::Market_bbo obj;
-        obj.receive_time = core::time::Time().to_nanoseconds();
+        obj.receive_time = core::time::local_nanoseconds();
         obj.market_type = core::datas::MarketType::Bbo;
         std::strcpy(obj.symbol, symbols.c_str());
         std::strcpy(obj.exchange, "Bybit");
@@ -304,7 +304,7 @@ void BybitMarket::on_message(const std::string &msg) {
         // spdlog::info("{} tickers: {}", LOGHEAD, msg);
 
         core::datas::Market_kline obj;
-        obj.receive_time = core::time::Time().to_nanoseconds();
+        obj.receive_time = core::time::local_nanoseconds();
         obj.market_type = core::datas::MarketType::Kline;
         std::strcpy(obj.symbol, symbols.c_str());
         std::strcpy(obj.exchange, "Bybit");

@@ -36,7 +36,7 @@ struct Self {
 };
 
 void update_headers(Self *self, const nlohmann::json& parameters, const std::string method) {
-    std::string timestamp = std::to_string(core::time::Time().to_milliseconds() - self->time_difference);
+    std::string timestamp = std::to_string(core::time::local_milliseconds() - self->time_difference);
 
     std::string sign;
     static const std::string recv_window = "5000";
@@ -110,13 +110,13 @@ void BybitTrade::init() {
     self.http_client.set_uri(restful_url);
 
     // caculate time difference
-    uint64_t step1_time = core::time::Time().to_second();
+    uint64_t step1_time = core::time::local_second();
     self.http_client.set_header({{"Content-Type", "application/json"}});
     httplib::Result time_result = self.http_client.get("/v5/market/time");
     // no check
     // {"retCode":0,"retMsg":"OK","result":{"timeSecond":"1713688912","timeNano":"1713688912966849170"},"retExtInfo":{},"time":1713688912966}
     nlohmann::json json_time_result = nlohmann::json::parse(time_result->body);
-    uint64_t step2_time = core::time::Time().to_second();
+    uint64_t step2_time = core::time::local_second();
     uint64_t server_time = std::stoi(std::string(json_time_result["result"]["timeSecond"]));
     self.time_difference = (((step2_time + step1_time) / 2) - server_time) * 1000;
 
@@ -238,7 +238,7 @@ void BybitTrade::on_open() {
     json_obj["req_id"] = self.reqid.load();
     json_obj["op"] = "auth";
 
-    auto exipres = core::time::Time().to_milliseconds() + 1000;
+    auto exipres = core::time::local_milliseconds() + 1000;
     json_obj["args"] = {
         self.api_key,
         exipres,
