@@ -3,6 +3,7 @@
 #include <core/http/util.hpp>
 #include <core/http/client.h>
 #include <core/time.hpp>
+#include <core/filter.hpp>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 #include <regex>
@@ -80,17 +81,49 @@ bool BybitMarket::is_ready() {
     return self.is_ready.load();
 }
 
-static MarketOperateResult market_evene(Self &self, std::string op, const std::vector<std::string> symbols) {
+static inline MarketOperateResult subscribe_evene(Self &self, const std::vector<std::string> symbols) {
+    bool is_vaild = false;
     nlohmann::json json_obj;
-    json_obj["req_id"] = op;
-    json_obj["op"] = op;
+    json_obj["req_id"] = "subscribe";
+    json_obj["op"] = "subscribe";
     json_obj["args"] = {};
     for (auto symbol: symbols) {
-        json_obj["args"].push_back(symbol);
+        if (core::filter::is_need_subscribe(symbol)) {
+            json_obj["args"].push_back(symbol);
+            is_vaild = true;
+        }
     }
-    std::string json_str = json_obj.dump();
 
-    auto code = self.client->send(json_str);
+    int code = 0;
+    if (is_vaild) {
+        std::string json_str = json_obj.dump();
+        code = self.client->send(json_str);
+    }
+
+    return {
+        .code = code,
+        .msg = ""
+    };
+}
+
+static inline MarketOperateResult unsubscribe_evene(Self &self, const std::vector<std::string> symbols) {
+    bool is_vaild = false;
+    nlohmann::json json_obj;
+    json_obj["req_id"] = "unsubscribe";
+    json_obj["op"] = "unsubscribe";
+    json_obj["args"] = {};
+    for (auto symbol: symbols) {
+        if (core::filter::is_need_unsubscribe(symbol)) {
+            json_obj["args"].push_back(symbol);
+            is_vaild = true;
+        }
+    }
+
+    int code = 0;
+    if (is_vaild) {
+        std::string json_str = json_obj.dump();
+        code = self.client->send(json_str);
+    }
 
     return {
         .code = code,
@@ -100,12 +133,12 @@ static MarketOperateResult market_evene(Self &self, std::string op, const std::v
 
 MarketOperateResult BybitMarket::subscribe(const std::vector<std::string> symbols) {
     // tudo: symbol转换
-    return market_evene(self, "subscribe", std::move(symbols));
+    return subscribe_evene(self, std::move(symbols));
 }
 
 MarketOperateResult BybitMarket::unsubscribe(const std::vector<std::string> symbols) {
     // tudo: symbol转换
-    return market_evene(self, "unsubscribe", std::move(symbols));
+    return unsubscribe_evene(self, std::move(symbols));
 }
 
 void BybitMarket::interval_1s() {
