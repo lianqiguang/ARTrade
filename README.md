@@ -56,6 +56,25 @@
     > cd exchange/crypto/bybit
     > ./bybit -r ./
     ```
+8. compile strategy
+    ``` shell
+    compile strategy
+    > sh compile.sh -p strategy
+    ```
+9. Install Python api package
+    ```
+    pip3 install strategy/PythonApi/pystrategy/xxxx.whl
+    ```
+10. run (Take the **bybit** as an example)
+    ```shell
+    > cd exchange/crypto/bybit
+    > ./bybit -r ./
+    ```
+11. Install some special third-party libraries
+    ```
+    [PyTorch]
+    > https://pytorch.org/get-started/locally/
+    ```
 
 # 金蟾量化
 ### 1. 寓意  
