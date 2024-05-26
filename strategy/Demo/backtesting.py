@@ -162,4 +162,4 @@ if __name__ == "__main__":
         lever=lever
     )
 
-    back_test.run("/home/ubuntu/ARTrade/strategy/Demo/result.csv")
+    back_test.run("/home/ubuntu/ARTrade/strategy/Demo/talib.csv")
