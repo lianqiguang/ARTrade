@@ -128,8 +128,8 @@ class BackTest(object):
         df['open_time'] = pd.to_datetime(df['open_time'])
         result = list()
         for item in df.itertuples():
-            self.on_kiline(item.open_time, item.Open, item.Close, item.High, item.Low, item.Volume, item.trade_point)
-            response = {"open_time": item.open_time, "Signal": item.trade_point, "Asset": self.asset, "LockAsset": self.lock_asset, "All": self.asset + self.lock_asset}
+            self.on_kiline(item.open_time, item.Open, item.Close, item.High, item.Low, item.Volume, item.bbands_signal)
+            response = {"open_time": item.open_time, "Signal": item.bbands_signal, "Asset": self.asset, "LockAsset": self.lock_asset, "All": self.asset + self.lock_asset}
             result.append(response)
 
         df_result = pd.DataFrame(result)
@@ -162,4 +162,4 @@ if __name__ == "__main__":
         lever=lever
     )
 
-    back_test.run("/home/ubuntu/ARTrade/strategy/Demo/talib.csv")
+    back_test.run("/home/linch/CodeSpace/ARTrade/strategy/Demo/talib.csv")
